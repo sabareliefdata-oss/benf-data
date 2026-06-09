@@ -1,5 +1,9 @@
 // Global API URL setup for local development / production online hosting
-window.API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+window.API_BASE_URL = import.meta.env.VITE_API_URL || (
+  window.location.port === '5173' // Vite dev server port
+    ? 'http://localhost:5000'
+    : window.location.origin
+);
 
 // Polyfill Promise.withResolvers for older browser compatibility (needed by modern PDF.js)
 if (typeof Promise.withResolvers === 'undefined') {
