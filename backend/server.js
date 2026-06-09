@@ -521,7 +521,7 @@ app.delete('/api/beneficiaries/:id', async (req, res) => {
 
 // Analyze Excel for duplicate warning before final import
 app.post('/api/beneficiaries/import-analyze', excelUpload.single('file'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  return res.status(403).json({ error: 'الاستيراد من إكسل غير مسموح به في النسخة السحابية. يرجى الاستيراد محلياً ومزامنة البيانات.' });
 
   try {
     const workbook = xlsx.readFile(req.file.path);
@@ -664,7 +664,7 @@ app.post('/api/beneficiaries/import-analyze', excelUpload.single('file'), async 
 
 // Final Excel Import Commit
 app.post('/api/beneficiaries/import-commit', async (req, res) => {
-  const { newItems, duplicates } = req.body;
+  return res.status(403).json({ error: 'الاستيراد من إكسل غير مسموح به في النسخة السحابية. يرجى الاستيراد محلياً ومزامنة البيانات.' });
   let inserted = 0;
   let updated = 0;
   let skipped = 0;
@@ -1786,6 +1786,28 @@ app.post('/api/maintenance/upload-logo', logoUpload.single('logo'), (req, res) =
   } catch (error) {
     console.error("Failed to save logo:", error);
     res.status(500).json({ error: 'فشل حفظ ملف الشعار على القرص', details: error.message });
+  }
+});
+
+// Get dashboard statistics (optimized direct counts)
+app.get('/api/dashboard/stats', async (req, res) => {
+  try {
+    const total = await Beneficiary.countDocuments();
+    const linked = await Beneficiary.countDocuments({ card_status: 'linked' });
+    const pending = await Beneficiary.countDocuments({ card_status: 'pending' });
+    const missing = await Beneficiary.countDocuments({ card_status: 'missing' });
+    const projects = await Project.countDocuments();
+
+    res.json({
+      total,
+      linked,
+      pending,
+      missing,
+      projects
+    });
+  } catch (error) {
+    console.error("Dashboard stats error:", error);
+    res.status(500).json({ error: 'Failed to retrieve stats', details: error.message });
   }
 });
 

@@ -529,7 +529,7 @@ export default function App() {
           </div>
           
           <div className="header-actions">
-            {activeTab !== 'matching' && currentUser.role === 'admin' && (
+            {activeTab !== 'matching' && currentUser.role === 'admin' && !(window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') && (
               <button className="btn btn-success" onClick={() => setIsImportOpen(true)}>
                 <Upload size={16} />
                 استيراد إكسل

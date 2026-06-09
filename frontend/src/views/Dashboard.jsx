@@ -15,18 +15,13 @@ export default function Dashboard({ setActiveTab, triggerImport }) {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      // Fetch beneficiaries
-      const resB = await fetch(`${window.API_BASE_URL}/api/beneficiaries`);
-      const beneficiaries = await resB.json();
-      
-      // Fetch projects
-      const resP = await fetch(`${window.API_BASE_URL}/api/projects`);
-      const projects = await resP.json();
+      const res = await fetch(`${window.API_BASE_URL}/api/dashboard/stats`);
+      const data = await res.json();
 
-      const total = beneficiaries.length;
-      const linked = beneficiaries.filter(b => b.card_status === 'linked').length;
-      const pending = beneficiaries.filter(b => b.card_status === 'pending').length;
-      const missing = beneficiaries.filter(b => b.card_status === 'missing').length;
+      const total = data.total || 0;
+      const linked = data.linked || 0;
+      const pending = data.pending || 0;
+      const missing = data.missing || 0;
       const linkPercentage = total > 0 ? Math.round((linked / total) * 100) : 0;
 
       setStats({
@@ -34,7 +29,7 @@ export default function Dashboard({ setActiveTab, triggerImport }) {
         linked,
         pending,
         missing,
-        projects: projects.length,
+        projects: data.projects || 0,
         linkPercentage
       });
     } catch (error) {
@@ -140,10 +135,12 @@ export default function Dashboard({ setActiveTab, triggerImport }) {
         }}>
           <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '20px' }}>الوصول السريع</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <button className="btn btn-primary" onClick={triggerImport} style={{ justifyContent: 'flex-start' }}>
-              <Upload size={18} />
-              استيراد مستفيدين جدد (ملف Excel)
-            </button>
+            {!(window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') && (
+              <button className="btn btn-primary" onClick={triggerImport} style={{ justifyContent: 'flex-start' }}>
+                <Upload size={18} />
+                استيراد مستفيدين جدد (ملف Excel)
+              </button>
+            )}
             <button className="btn btn-success" onClick={() => setActiveTab('matching')} style={{ justifyContent: 'flex-start' }}>
               <Play size={18} />
               البدء بربط وقص البطائق (PDF)
