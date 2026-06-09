@@ -1789,9 +1789,14 @@ app.post('/api/maintenance/upload-logo', logoUpload.single('logo'), (req, res) =
   }
 });
 
-// Fallback in production: serve React app
+// Fallback in production: serve React app if exists, otherwise return API status message
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
+  const indexPath = path.join(__dirname, '..', 'frontend', 'dist', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.send('Benapp API Server is running successfully.');
+  }
 });
 
 app.listen(PORT, () => {
