@@ -1,0 +1,13 @@
+# بريد حساب الخدمة (client_email من ملف الجاسون)
+GOOGLE_CLIENT_EMAIL="drive-uploader@beneficiary-system.iam.gserviceaccount.com"
+
+# المفتاح السري الخاص (private_key من ملف الجاسون بالكامل كما هو مع الحفاظ على علامات الاقتباس)
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCnGf9uc+tcWz6P\n/Kjh0WvVft54IJ8OzqpT60vGGMIkv3TaPD1GkYEF/Qrtm8l7kbDH+MqtpWSvPyeD\nvBi4ADortVaLtgeqOiYApOd5TGu3CNw100U7CvPS5AcIe3+xUuuoRjXi/F2uiOPe\nwH6/pFXkI7yi7wgTkKvrREcQANeuxcetxw3BIcCulWH8HM3OfGLGQ4LHbalRvl0l\nynnmwMFxM0vd1uhLXZygJb81a0gmvK+I0iETqJrYBkP4fN1fqyTpaMZD7Q0WKLGi\nb9kX69z3l+Ui0R9Iq7T2/bHvKP3eeCs9nu9QTtQ4Eb/q8yfegZiuAMNyFb8GuJZy\nfLPe2ivHAgMBAAECggEAMi4P8zrTTH5IGNQuYPXTNJ8vLpLZQQiVxLKtpBTuRDvM\nWvbpDcaHIOW+wODeDgIPvNV9A81doXTNKHW1VJgY3+RKU5U70wY4QExFCLuGw0Xh\nXzaNHTBqTQPWCtmPXJBCnVtMNlhDx7Rq/Yr/5Qv0ERkcPi+a1MlGn1V3I5qlKmHV\nHWV4xiRBp/cz5QZhYMHVVGj/2lTAmEn/iaYbza2tqB2/KLIR9D5gDmi3d05YctXB\neQSWgBD75wwhxfkg2QZxVs8reTIkB+DGMmTScZc3bTd56W+qyVe1bVf2CjyqEsZf\nMmEgvzAYev6FHpJ7fu834sq/uYOrnSc4x/g5Pia9OQKBgQDQs4BlNFv3cZxJXCgN\n2vlFJT748OeKSErHVgjTp5bT1TR1rVggzk+1Bk1yJh3qQNbOTOuUm6esofJAkIlv\nujCjAsT4hHgGy7g4bXkJLjenKrxZ89mlH+DnHhs0lepGRwKr9NtUvywlPW4TTE3K\nlBCh35/9JG9RXhFRFp1mQ2kzTwKBgQDM+PRgFqX8EdxKz/2DBwO+AxD1G+f5LwX4\ngZ3fP+sg7y58t04aJHkyFHWbIDOo+gmzBS0M/YW76oqblTt5bfHIwfUu7k9K4XMN\n9j8rj3x8CWWr/YKREoyGlv0ZPpiJ2bpZDREq6rjlOG0oOaHvnC+dgEBdj6PZ5Hp5\nEaL/CQNCCQKBgQDBV6n5GBqjECNDaxbITzZisnC2WyeF2hc8uB2RR07ZjEj/Q8nD\nCp6ZC++vclSAcfUORgBxOgqKSbWNztkkIo9wVN55hO9VDGHsFK7urFxuh47anqfg\n67mFI0T84G2bEaoN99dBmaGiFljlk+j1ZVpLPEqRT7G45baRMqw60vSgzQKBgQC1\nCX3uEJLyHGRRv3rN67gmb1be5pLwx9OiNflWYYIvSJHqnYxiEqzoyqFFLh/ys0U1\n1PCBdLpVy0Y5PImXKsBO7OC9XsayAIY6YrBQrR7p/vLKAdL8h0GO7nUFgv//YUrx\ntFThbwd3jWr8CEs68twrZEd1W5UAsohpvmYUk8VI4QKBgDMOq2MG9LHmQCGBJXDq\nVpxj0rBBVbDI4k+smzZGrtMiI4HK7c2LP6ZlnaDxIaNNX/saSdkWcoxTdG96/MTA\nYJBlvWapoVDxri/jVuvi7y1hdhInudonWYt94Pj1NkRbbuaFhXUj3LYPC1JUd0rU\nLC7JVOCtCdkbbnmdUPenJ4gB\n-----END PRIVATE KEY-----\n"
+
+# معرّف مجلد جوجل درايف (Folder ID الذي نسخته من الرابط)
+GOOGLE_DRIVE_FOLDER_ID="https://drive.google.com/drive/folders/15-L5-MsQRpcmzvB9OC1QUota7CCENpbv"
+
+# رابط قاعدة بيانات MongoDB Atlas (سنقوم بإنشائه في الخطوة القادمة)
+MONGODB_URI="mongodb+srv://sabareliefdata:Saba123$@cluster26.xgwm7n9.mongodb.net/?appName=Cluster26"
+
+
