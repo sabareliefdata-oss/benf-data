@@ -1,0 +1,19 @@
+{
+  "name": "sabaview-backend",
+  "version": "1.0.0",
+  "description": "Backend for SabaView Read & Export Cloud App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "npm --prefix ../frontend install && npm --prefix ../frontend run build"
+  },
+  "dependencies": {
+    "archiver": "^6.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.0",
+    "mongoose": "^8.3.1",
+    "xlsx": "^0.18.5"
+  }
+}
