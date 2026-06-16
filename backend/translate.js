@@ -350,7 +350,7 @@ async function runTranslationWorker() {
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     while (hasMore) {
-      // Find beneficiaries that do not have a translation yet OR whose translation is outdated
+      // Find beneficiaries that do not have a translation yet OR whose critical fields or timestamps differ
       const untranslated = await Beneficiary.aggregate([
         {
           $lookup: {
@@ -366,9 +366,40 @@ async function runTranslationWorker() {
               { translation: { $size: 0 } }, // No translation exists
               {
                 $expr: {
-                  $gt: [
-                    { $ifNull: ['$updated_at', '$created_at'] },
-                    { $ifNull: [{ $arrayElemAt: ['$translation.updated_at', 0] }, { $arrayElemAt: ['$translation.created_at', 0] }, new Date(0)] }
+                  $or: [
+                    // 1. Google Drive File ID mismatch
+                    {
+                      $ne: [
+                        { $ifNull: ['$googleDriveFileId', ''] },
+                        { $ifNull: [{ $arrayElemAt: ['$translation.googleDriveFileId', 0] }, ''] }
+                      ]
+                    },
+                    // 2. Card Status mismatch
+                    {
+                      $ne: [
+                        { $ifNull: ['$card_status', ''] },
+                        { $ifNull: [{ $arrayElemAt: ['$translation.card_status', 0] }, ''] }
+                      ]
+                    },
+                    // 3. Phone number mismatch
+                    {
+                      $ne: [
+                        { $ifNull: ['$phone', ''] },
+                        { $ifNull: [{ $arrayElemAt: ['$translation.phone', 0] }, ''] }
+                      ]
+                    },
+                    // 4. Timestamp check (if timestamps exist on the Arabic record)
+                    {
+                      $and: [
+                        { $ne: ['$updated_at', null] },
+                        {
+                          $gt: [
+                            { $ifNull: ['$updated_at', '$created_at'] },
+                            { $ifNull: [{ $arrayElemAt: ['$translation.updated_at', 0] }, { $arrayElemAt: ['$translation.created_at', 0] }, new Date(0)] }
+                          ]
+                        }
+                      ]
+                    }
                   ]
                 }
               }
