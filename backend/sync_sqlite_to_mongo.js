@@ -49,7 +49,10 @@ const beneficiarySchema = new mongoose.Schema({
   cloudinary_url: String,
   cloudinary_public_id: String,
   extra_data: { type: Map, of: mongoose.Schema.Types.Mixed, default: {} },
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now }
+}, {
+  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });
 beneficiarySchema.set('toJSON', transformOptions);
 beneficiarySchema.set('toObject', transformOptions);
@@ -113,25 +116,41 @@ async function main() {
   const sqliteDb = await openSqlite();
   console.log('SQLite Connected.');
 
-  // 1. Clear existing beneficiaries and projects in MongoDB first to start fresh
-  console.log('Clearing existing beneficiaries and projects in MongoDB...');
-  await Beneficiary.deleteMany({});
-  await Project.deleteMany({});
-  console.log('MongoDB collections cleared.');
+  // 1. Fetch existing beneficiaries from MongoDB to map their codes to their existing ObjectIds
+  console.log('Fetching existing beneficiaries from MongoDB...');
+  const existingBens = await Beneficiary.find({}, { code: 1 });
+  const codeToMongoIdMap = {};
+  existingBens.forEach(b => {
+    if (b.code) codeToMongoIdMap[b.code] = b._id;
+  });
+  console.log(`Found ${existingBens.length} existing beneficiaries in MongoDB.`);
 
-  // 2. Fetch beneficiaries from SQLite
+  // 2. Clear existing projects (projects will be recreated with mapped beneficiary ObjectIds)
+  console.log('Clearing existing projects in MongoDB...');
+  await Project.deleteMany({});
+  console.log('Projects cleared.');
+
+  // 3. Fetch beneficiaries from SQLite
   console.log('Fetching beneficiaries from SQLite...');
   const sqliteBens = await dbAll(sqliteDb, 'SELECT * FROM beneficiaries');
   console.log(`Found ${sqliteBens.length} beneficiaries in SQLite.`);
 
-  const sqliteToMongoIdMap = {}; // Maps SQLite id -> MongoDB ObjectId string
+  // 4. Delete beneficiaries from MongoDB that are no longer in SQLite
+  const sqliteCodes = sqliteBens.map(r => r.code).filter(Boolean);
+  console.log('Removing obsolete beneficiaries from MongoDB...');
+  const deleteRes = await Beneficiary.deleteMany({ code: { $nin: sqliteCodes } });
+  console.log(`Removed ${deleteRes.deletedCount} obsolete beneficiaries.`);
 
-  // Insert beneficiaries into MongoDB in batches
+  const sqliteToMongoIdMap = {}; // Maps SQLite id -> MongoDB ObjectId
+
+  // Upsert beneficiaries into MongoDB in batches using bulkWrite
   const batchSize = 200;
   for (let i = 0; i < sqliteBens.length; i += batchSize) {
     const batch = sqliteBens.slice(i, i + batchSize);
     const mongoDocs = batch.map(row => {
-      const mongoId = new mongoose.Types.ObjectId();
+      // Reuse existing ObjectId if it exists, otherwise generate a new one
+      const existingId = codeToMongoIdMap[row.code];
+      const mongoId = existingId || new mongoose.Types.ObjectId();
       sqliteToMongoIdMap[row.id] = mongoId;
 
       let extra = {};
@@ -174,16 +193,39 @@ async function main() {
         notes: row.notes,
         card_status: row.card_status || 'pending',
         card_image_path: row.card_image_path,
-        googleDriveFileId: row.googleDriveFileId || row.cloudinary_public_id, // fallback if stored differently
+        googleDriveFileId: row.googleDriveFileId || row.cloudinary_public_id,
         cloudinary_url: row.cloudinary_url,
         cloudinary_public_id: row.cloudinary_public_id,
-        extra_data: extra,
-        created_at: row.created_at ? new Date(row.created_at) : new Date()
+        extra_data: extra
       };
     });
 
-    await Beneficiary.insertMany(mongoDocs);
-    console.log(`Uploaded batch ${i / batchSize + 1} (${Math.min(i + batchSize, sqliteBens.length)}/${sqliteBens.length})`);
+    const bulkOps = mongoDocs.map(doc => {
+      const isNew = !codeToMongoIdMap[doc.code];
+      const updateDoc = { ...doc };
+      delete updateDoc._id; // cannot modify _id in update
+
+      if (isNew) {
+        updateDoc.created_at = new Date();
+        updateDoc.updated_at = new Date();
+      } else {
+        updateDoc.updated_at = new Date();
+      }
+
+      return {
+        updateOne: {
+          filter: { code: doc.code },
+          update: {
+            $set: updateDoc,
+            $setOnInsert: { _id: doc._id, created_at: updateDoc.created_at || new Date() }
+          },
+          upsert: true
+        }
+      };
+    });
+
+    await Beneficiary.bulkWrite(bulkOps);
+    console.log(`Synced batch ${i / batchSize + 1} (${Math.min(i + batchSize, sqliteBens.length)}/${sqliteBens.length})`);
   }
 
   // 3. Fetch projects from SQLite

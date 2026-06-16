@@ -337,9 +337,10 @@ async function runTranslationWorker() {
   }
   isTranslationWorkerRunning = true;
   try {
-    const config = await TranslationConfig.findOne();
-    if (!config || !config.apiKey || config.apiKey.trim() === '') {
-      // Silently return if no API key is set to avoid flooding logs
+    let initialConfig = await TranslationConfig.findOne();
+    if (!initialConfig || !initialConfig.apiKey || initialConfig.apiKey.trim() === '') {
+      console.log("Translation worker skipped: No API key configured in database.");
+      isTranslationWorkerRunning = false;
       return;
     }
 
@@ -350,6 +351,13 @@ async function runTranslationWorker() {
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     while (hasMore) {
+      // Fetch the latest config in each batch loop to support real-time API key swapping
+      const config = await TranslationConfig.findOne();
+      if (!config || !config.apiKey || config.apiKey.trim() === '') {
+        console.warn("[STOP] Translation API key was cleared or removed. Halting worker.");
+        hasMore = false;
+        break;
+      }
       // Find beneficiaries that do not have a translation yet OR whose critical fields or timestamps differ
       const untranslated = await Beneficiary.aggregate([
         {
