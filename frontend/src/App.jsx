@@ -172,6 +172,7 @@ export default function App() {
 
   // Settings state
   const [apiKey, setApiKey] = useState('');
+  const [isTranslationActive, setIsTranslationActive] = useState(true);
   const [configSaving, setConfigSaving] = useState(false);
 
   // User Management state
@@ -298,6 +299,7 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         setApiKey(data.apiKey || '');
+        setIsTranslationActive(data.isTranslationActive !== undefined ? data.isTranslationActive : true);
       }
     } catch (err) {
       console.error("Failed to fetch config", err);
@@ -453,10 +455,10 @@ export default function App() {
       const res = await fetch(getApiUrl('/api/config'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey })
+        body: JSON.stringify({ apiKey, isTranslationActive })
       });
       if (res.ok) {
-        alert('تم حفظ مفتاح الـ API بنجاح!');
+        alert('تم حفظ الإعدادات بنجاح!');
       } else {
         alert('فشل حفظ الإعدادات.');
       }
@@ -1187,10 +1189,58 @@ export default function App() {
                       onChange={(e) => setApiKey(e.target.value)}
                     />
                   </div>
+                  
+                  {/* Auto-Translation Toggle Switch */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    backgroundColor: 'rgba(255,255,255,0.02)', 
+                    padding: '12px 16px', 
+                    borderRadius: 'var(--radius-md)', 
+                    border: '1px solid var(--border-color)',
+                    marginTop: '8px',
+                    direction: 'rtl'
+                  }}>
+                    <div style={{ flex: 1, paddingLeft: '16px' }}>
+                      <label style={{ fontWeight: 700, display: 'block', marginBottom: '4px', fontSize: '0.95rem', color: 'var(--text-color)', cursor: 'pointer' }} onClick={() => setIsTranslationActive(!isTranslationActive)}>
+                        تفعيل الترجمة التلقائية المستمرة
+                      </label>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        إذا كان مفعل، تستمر الترجمة التلقائية للمستفيدين. في حال نفاد رصيد مفتاح Gemini الخاص بك، قم بإلغاء التفعيل لإيقاف إرسال طلبات الترجمة مؤقتاً.
+                      </span>
+                    </div>
+                    <div 
+                      onClick={() => setIsTranslationActive(!isTranslationActive)}
+                      style={{ 
+                        width: '50px', 
+                        height: '26px', 
+                        backgroundColor: isTranslationActive ? 'var(--primary)' : 'rgba(255,255,255,0.1)', 
+                        borderRadius: '13px', 
+                        padding: '3px', 
+                        transition: 'background-color 0.2s', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: isTranslationActive ? 'flex-end' : 'flex-start',
+                        cursor: 'pointer',
+                        flexShrink: 0
+                      }}
+                    >
+                      <div style={{ 
+                        width: '20px', 
+                        height: '20px', 
+                        backgroundColor: '#ffffff', 
+                        borderRadius: '50%', 
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                        transition: 'transform 0.2s'
+                      }} />
+                    </div>
+                  </div>
+
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <button className="btn btn-primary" type="submit" disabled={configSaving}>
                       {configSaving ? <RefreshCw size={16} className="spin" /> : null}
-                      <span>حفظ مفتاح الـ API</span>
+                      <span>حفظ الإعدادات</span>
                     </button>
                   </div>
                 </form>

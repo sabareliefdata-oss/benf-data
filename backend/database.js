@@ -163,7 +163,8 @@ const translationConfigSchema = new mongoose.Schema({
     'معلقة': 'Pending'
   } },
   arabicViewerPassword: { type: String, default: 'viewer' },
-  englishViewerPassword: { type: String, default: 'viewer' }
+  englishViewerPassword: { type: String, default: 'viewer' },
+  isTranslationActive: { type: Boolean, default: true }
 });
 translationConfigSchema.set('toJSON', transformOptions);
 translationConfigSchema.set('toObject', transformOptions);

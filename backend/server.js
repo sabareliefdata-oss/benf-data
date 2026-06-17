@@ -376,7 +376,7 @@ app.get('/api/config', async (req, res) => {
 });
 
 app.post('/api/config', async (req, res) => {
-  const { apiKey, provider, systemPrompt, dictionary, arabicViewerPassword, englishViewerPassword } = req.body;
+  const { apiKey, provider, systemPrompt, dictionary, arabicViewerPassword, englishViewerPassword, isTranslationActive } = req.body;
   try {
     let config = await TranslationConfig.findOne();
     if (!config) config = new TranslationConfig();
@@ -387,6 +387,7 @@ app.post('/api/config', async (req, res) => {
     if (dictionary !== undefined) config.dictionary = dictionary;
     if (arabicViewerPassword !== undefined) config.arabicViewerPassword = arabicViewerPassword;
     if (englishViewerPassword !== undefined) config.englishViewerPassword = englishViewerPassword;
+    if (isTranslationActive !== undefined) config.isTranslationActive = isTranslationActive;
 
     await config.save();
     res.json({ success: true, config });
