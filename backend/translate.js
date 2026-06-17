@@ -449,9 +449,9 @@ async function runTranslationWorker() {
                 hasMore = false;
                 return; // Exit worker completely
               } else {
-                // Minute limit: wait and retry
-                console.warn(`[WARNING] Gemini rate limit hit (429). Retrying record ${ben.code} in 15 seconds... (Attempt ${retries}/${maxRetries})`);
-                await sleep(15000); // Sleep for 15 seconds
+                // Minute limit: wait and retry (85 seconds for safe quota reset)
+                console.warn(`[WARNING] Gemini rate limit hit (429). Waiting 85 seconds for quota reset... (Attempt ${retries}/${maxRetries})`);
+                await sleep(85000); // Sleep for 85 seconds
               }
             } else {
               // General non-rate-limit error (e.g., parsing error, database error)
